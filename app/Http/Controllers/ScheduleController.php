@@ -20,7 +20,6 @@ class ScheduleController extends Controller
 
 public function slots(Request $request, $slot)
 {
-    // 1. First, find the specific schedule record to get its date string
     $selectedRecord = Schedule::find($slot);
 
     if (!$selectedRecord) {
@@ -30,13 +29,12 @@ public function slots(Request $request, $slot)
         ], 404);
     }
 
-    // 2. Find all slots that have the same date as the selected record
-    // We use ->get() to return a collection (array) of all matches
+
     $allSlots = Schedule::where('date', $selectedRecord->date)
                         ->orderBy('schedule', 'asc')
                         ->get();
 
-    // 3. Return the collection wrapped in your data structure
+
     return response()->json([
         'status'  => true,
         'code'    => 200,
@@ -85,7 +83,6 @@ public function storeBooking(Request $request, GoogleMeetService $meetService)
         });
 
     } catch (\Exception $e) {
-        // 6. Log errors for debugging
         logger()->error("Booking failed: " . $e->getMessage());
         return back()->with('error', 'Something went wrong. Please try again.');
     }

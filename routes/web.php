@@ -2,33 +2,36 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ScheduleController;
-use App\Services\GoogleMeetService;
+use App\Services\ZoomService;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 
-Route::get('/test-meet', function (GoogleMeetService $meetService) {
+Route::get('/test-meet', function (ZoomService $zoomService) {
     try {
-        $meeting = $meetService->createMeeting([
-            'title'      => 'Test Filament Meeting',
+        $meeting = $zoomService->createMeeting([
+            'topic'      => 'Test Laravel Meeting',
             'start_time' => now()->addHour(),
-            'end_time'   => now()->addHours(2),
+            'duration'   => 60, 
         ]);
 
-        return "Success! Meet Link: " . $meeting['meet_link'];
+        if (isset($meeting['join_url'])) {
+            return "Success! Join Link: " . $meeting['join_url'];
+        }
+
+        return response()->json($meeting); 
     } catch (\Exception $e) {
         return "Error: " . $e->getMessage();
     }
-});
+}); 
 
 
 
 
 Route::prefix('schedule')->group(function () {
     Route::get('/', [ScheduleController::class, 'index'])->name('schedule');
-    
     Route::get('/slots/{slot}', [ScheduleController::class, 'slots'])->name('schedule.slots');
     Route::post('booking', [ScheduleController::class, 'storeBooking'])->name('schedule.apoitment');
 });
