@@ -11,6 +11,7 @@ class Schedule extends Model
         'date',
         'schedule',
         'is_available',
+        'meet_link',
     ];
 
     /**

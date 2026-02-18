@@ -29,7 +29,6 @@ Route::get('/test-meet', function (ZoomService $zoomService) {
 
 
 
-
 Route::prefix('schedule')->group(function () {
     Route::get('/', [ScheduleController::class, 'index'])->name('schedule');
     Route::get('/slots/{slot}', [ScheduleController::class, 'slots'])->name('schedule.slots');

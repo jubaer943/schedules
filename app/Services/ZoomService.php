@@ -37,9 +37,9 @@ class ZoomService
 
             $response = Http::withToken($token)
                 ->post("{$this->baseUrl}/users/me/meetings", [
-                    'topic'      => $data['topic'] ?? 'New Meeting', // Fixed key
+                    'topic'      => $data['topic'] ?? 'New Meeting',
                     'type'       => 2, 
-                    'start_time' => $data['start_time']->format('Y-m-d\TH:i:s'), // Format for Zoom
+                    'start_time' => $data['start_time']->format('Y-m-d\TH:i:s'), 
                     'duration'   => $data['duration'] ?? 40,
                     'settings'   => [
                         'host_video'        => true,
