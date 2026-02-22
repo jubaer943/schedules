@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('date');
             $table->string('schedule');
-            $table->integer('is_available');
-            $table->string('meet_link')->nullable();
+            $table->integer('is_available')->default(1);
             $table->timestamps();
         });
     }

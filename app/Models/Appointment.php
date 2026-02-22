@@ -10,6 +10,7 @@ class Appointment extends Model
     protected $fillable = [
         'email',
         'schedule_id',
+        'meet_link',
     ];
 
     /**

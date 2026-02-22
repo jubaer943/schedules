@@ -18,6 +18,7 @@ return new class extends Migration
             ->nullable()               
             ->constrained()
             ->onDelete('set null');
+            $table->string('meet_link')->nullable();
             $table->timestamps();
         });
     }

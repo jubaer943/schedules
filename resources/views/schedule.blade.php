@@ -160,21 +160,23 @@
 
     <script>
         const resultDisplay = document.getElementById('result-display');
-        const availableDates = [
-            @if($shcedules) 
-                @foreach($shcedules as $shcedule) 
-                    "{{ $shcedule->date }}",
-                @endforeach
-            @endif
-        ];
+       const availableDates = [
+                @if($shcedules) 
+                    @foreach($shcedules as $shcedule) 
+                        // Use ->format() because $shcedule->date is now a Carbon object
+                        "{{ $shcedule->date->format('Y-m-d') }}",
+                    @endforeach
+                @endif
+            ];
 
-        const dateMap = {
-            @if($shcedules) 
-                @foreach($shcedules as $shcedule) 
-                    "{{ $shcedule->date }}": "{{ $shcedule->id }}",
-                @endforeach
-            @endif
-        };
+            const dateMap = {
+                @if($shcedules) 
+                    @foreach($shcedules as $shcedule) 
+                        // Use ->format() here as well
+                        "{{ $shcedule->date->format('Y-m-d') }}":"{{ $shcedule->id }}",
+                    @endforeach
+                @endif
+            };
 
         flatpickr("#date-picker", {
             dateFormat: "Y-m-d",

@@ -11,8 +11,12 @@ class Schedule extends Model
         'date',
         'schedule',
         'is_available',
-        'meet_link',
     ];
+
+    protected $casts = [
+    'date' => 'date', 
+    'is_available' => 'boolean',
+];
 
     /**
      * Get the registrations for the schedule.
