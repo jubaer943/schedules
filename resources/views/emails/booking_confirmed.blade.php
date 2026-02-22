@@ -69,7 +69,7 @@
             <strong>Note:</strong> Please ensure you have a stable internet connection, a working microphone, and your ID/Passport ready for verification.
         </p> -->
 
-        <p style="text-align: center; margin: 35px 0;">
+        <p style="text-align: center; margin: 35px 0;color:white">
             <a href="{{ $url }}" class="button">Start Your Mock Test</a>
         </p>
 
