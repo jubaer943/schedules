@@ -18,7 +18,7 @@
             <a href="#" class="hover:text-blue-600">Test Types</a>
             <a href="#" class="hover:text-blue-600">Pricing</a>
         </div> -->
-        <a href="#booking" class="bg-blue-700 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-800 transition">Book Now</a>
+        <a href="{{ route('schedule')}}" class="bg-blue-700 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-800 transition">Book Now</a>
     </nav>
 
     <section class="relative bg-slate-50 py-20 px-6 overflow-hidden">
