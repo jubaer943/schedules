@@ -15,13 +15,24 @@ class ZoomService
     private function getAccessToken()
     {
         return Cache::remember('zoom_access_token', 3500, function () {
-            $response = Http::asForm()->withBasicAuth(
-                env('ZOOM_CLIENT_ID'),
-                env('ZOOM_CLIENT_SECRET')
-            )->post("https://zoom.us/oauth/token", [
-                'grant_type' => 'account_credentials',
-                'account_id' => env('ZOOM_ACCOUNT_ID'),
-            ]);
+
+            $clientId = config('services.zoom.client_id');
+            $clientSecret = config('services.zoom.client_secret');
+            $accountId = config('services.zoom.account_id');
+
+            if (!$clientId || !$clientSecret || !$accountId) {
+                throw new \Exception("Zoom Credentials missing in config. Run php artisan config:clear.");
+            }
+
+            $response = Http::asForm()->withBasicAuth($clientId, $clientSecret)
+                ->post("https://zoom.us/oauth/token", [
+                    'grant_type' => 'account_credentials',
+                    'account_id' => $accountId,
+                ]);
+
+            if ($response->failed()) {
+                throw new \Exception("Zoom Token Error: " . $response->body());
+            }
 
             return $response->json()['access_token'];
         });
