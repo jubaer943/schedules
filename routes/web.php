@@ -2,53 +2,39 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ScheduleController;
-use App\Services\ZoomService;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Student\DashboardController;
+use App\Http\Controllers\Student\ProfileController;
 
-Route::get('/', function () {
-    return view('welcome');
+// --- Public Routes ---
+Route::get('/', function () { return view('frontend.home'); });
+
+// --- Authentication Routes ---
+Route::controller(LoginController::class)->group(function () {
+    Route::get('/login', 'showLogin')->name('login');
+    Route::post('/login', 'login');
+    Route::get('/lock', 'showLock')->name('lock');
+    Route::post('/unlock', 'unlock')->name('unlock');
 });
 
+// --- Student Area (Protected by Middleware) ---
+Route::middleware(['auth'])->prefix('student')->group(function () {
+    
+    // Overview / Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Bookings
+    Route::get('/my-bookings', [DashboardController::class, 'bookings'])->name('my.bookings');
+    
+    // Profile & Security
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 
-Route::get('/test-meet', function (ZoomService $zoomService) {
-    try {
-        $meeting = $zoomService->createMeeting([
-            'topic'      => 'Test Laravel Meeting',
-            'start_time' => now()->addHour(),
-            'duration'   => 60, 
-        ]);
-
-        if (isset($meeting['join_url'])) {
-            return "Success! Join Link: " . $meeting['join_url'];
-        }
-
-        return response()->json($meeting); 
-    } catch (\Exception $e) {
-        return "Error: " . $e->getMessage();
-    }
-}); 
-
-
-Route::get('/login', function () {
-    return view('login');
-})->name('login');
-Route::get('/dashboard', function () {
-    return view('dashboard');
 });
-Route::get('/forgot', function () {
-    return view('forgot');
-});
-Route::get('/lock', function () {
-    return view('lock');
-});
-Route::get('/profile', function () {
-    return view('profile');
-})->name('profile');
-Route::get('/my-bookings', function () {
-    return view('bookings');
-})->name('my.bookings');
 
+// --- Booking / Schedule Logic ---
 Route::prefix('schedule')->group(function () {
     Route::get('/', [ScheduleController::class, 'index'])->name('schedule');
     Route::get('/slots/{slot}', [ScheduleController::class, 'slots'])->name('schedule.slots');
-    Route::post('booking', [ScheduleController::class, 'storeBooking'])->name('schedule.apoitment');
+    Route::post('/booking', [ScheduleController::class, 'storeBooking'])->name('schedule.appointment');
 });
