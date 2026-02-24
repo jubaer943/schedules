@@ -35,7 +35,10 @@ class ProcessBookingJob implements ShouldQueue
         ]);
 
         if (isset($zoomData['join_url'])) {
-            $registration->update(['meet_link' => $zoomData['join_url']]);
+            $registration->update([
+                'start_url' => $zoomData['start_url'],
+                'join_url'  => $zoomData['join_url']
+                ]);
             
             Mail::to($registration->email)->send(new BookingConfirmedMail($registration, $zoomData['join_url']));
         }

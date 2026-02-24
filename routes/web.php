@@ -28,6 +28,24 @@ Route::get('/test-meet', function (ZoomService $zoomService) {
 }); 
 
 
+Route::get('/login', function () {
+    return view('login');
+})->name('login');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+});
+Route::get('/forgot', function () {
+    return view('forgot');
+});
+Route::get('/lock', function () {
+    return view('lock');
+});
+Route::get('/profile', function () {
+    return view('profile');
+})->name('profile');
+Route::get('/my-bookings', function () {
+    return view('bookings');
+})->name('my.bookings');
 
 Route::prefix('schedule')->group(function () {
     Route::get('/', [ScheduleController::class, 'index'])->name('schedule');
