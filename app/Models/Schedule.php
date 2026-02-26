@@ -19,9 +19,9 @@ class Schedule extends Model
 ];
 
     /**
-     * Get the registrations for the schedule.
+     * Get the appointments for the schedule.
      */
-    public function registrations(): HasMany
+    public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
     }

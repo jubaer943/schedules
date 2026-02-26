@@ -7,7 +7,15 @@ use App\Http\Controllers\Student\DashboardController;
 use App\Http\Controllers\Student\ProfileController;
 
 // --- Public Routes ---
-Route::get('/', function () { return view('frontend.home'); });
+Route::get('/', function () { return view('frontend.home'); })->name('home');
+
+// --- Booking / Schedule Logic ---
+Route::prefix('schedule')->group(function () {
+    Route::get('/', [ScheduleController::class, 'index'])->name('schedule');
+    Route::get('/slots/{slot}', [ScheduleController::class, 'slots'])->name('schedule.slots');
+    Route::post('/booking', [ScheduleController::class, 'storeBooking'])->name('schedule.appointment');
+});
+
 
 // --- Authentication Routes ---
 Route::controller(LoginController::class)->group(function () {
@@ -18,7 +26,7 @@ Route::controller(LoginController::class)->group(function () {
 });
 
 // --- Student Area (Protected by Middleware) ---
-Route::middleware(['auth'])->prefix('student')->group(function () {
+Route::middleware(['student.auth'])->prefix('student')->group(function () {
     
     // Overview / Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -30,11 +38,10 @@ Route::middleware(['auth'])->prefix('student')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 
+
+    // Logout 
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
 });
 
-// --- Booking / Schedule Logic ---
-Route::prefix('schedule')->group(function () {
-    Route::get('/', [ScheduleController::class, 'index'])->name('schedule');
-    Route::get('/slots/{slot}', [ScheduleController::class, 'slots'])->name('schedule.slots');
-    Route::post('/booking', [ScheduleController::class, 'storeBooking'])->name('schedule.appointment');
-});
+

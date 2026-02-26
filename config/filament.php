@@ -2,6 +2,15 @@
 
 return [
 
+
+
+    'auth' => [
+            'guard' => 'admin', 
+            'pages' => [
+                'login' => \Filament\Http\Livewire\Auth\Login::class,
+            ],
+        ],
+
     /*
     |--------------------------------------------------------------------------
     | Broadcasting

@@ -6,78 +6,95 @@ use Illuminate\Http\Request;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\DB;
 use App\Services\GoogleMeetService;
+use App\Services\BookingService;
+use App\Models\Booking;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
+    
+    /**
+     * Display the schedule page with available slots.
+     */
     public function index() {
         
-        $shcedules = Schedule::all();
+        $schedules = Schedule::all();
 
-        // return response()->json($shcedules);
-
-        return view('schedule', compact('shcedules'));
+        return view('frontend.schedule', compact('schedules'));
     }
 
-public function slots(Request $request, $slot)
-{
-    $selectedRecord = Schedule::find($slot);
+    /**
+     * Fetch all slots for a given date based on the selected slot's date.
+     */
+    public function slots(Request $request, $slot)
+    {
+        $selectedRecord = Schedule::find($slot);
 
-    if (!$selectedRecord) {
+        if (!$selectedRecord) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Date not found'
+            ], 404);
+        }
+
+        $allSlots = Schedule::where('date', $selectedRecord->date)
+                            ->orderBy('schedule', 'asc')
+                            ->get();
+
         return response()->json([
-            'status' => false,
-            'message' => 'Date not found'
-        ], 404);
+            'status'  => true,
+            'code'    => 200,
+            'message' => 'success',
+            'data'    => $allSlots,
+        ]);
     }
 
+    /**
+     * Handle booking requests, including user creation and Zoom meeting scheduling.
+    */
+    public function storeBooking(Request $request, BookingService $bookingService) 
+    {
+        $data = $request->validate([
+            'email'         => 'required|email',
+            'selected_slot' => 'required|exists:schedules,id'
+        ]);
 
-    $allSlots = Schedule::where('date', $selectedRecord->date)
-                        ->orderBy('schedule', 'asc')
-                        ->get();
+        try{
+            $result = $bookingService->handleBooking($data);
 
+            $registration = $result['registration'];
+            $user = $result['user'];
 
-    return response()->json([
-        'status'  => true,
-        'code'    => 200,
-        'message' => 'success',
-        'data'    => $allSlots,
-    ]);
-}
+            // zoom meeting creation is handled in the job, so we just dispatch it here
+            \App\Jobs\ProcessBookingJob::dispatch($registration->id);
 
+            // return response()->json([
+            //     'status' => true,
+            //     'data' => $result,
+            // ]);
 
+            // old user and not logged in, redirect to lock page
+            if($result['is_new_user']){
+                Auth::login($user);
 
-public function storeBooking(Request $request) 
-{
-    $data = $request->validate([
-        'email'         => 'required|email',
-        'selected_slot' => 'required|exists:schedules,id'
-    ]);
+                return redirect()->route('dashboard')->with('success', 'Booking successful! Your Zoom link is being generated and will be emailed to you shortly.');
+            }  
 
-    try {
-        $registration = DB::transaction(function () use ($data) {
-            $schedule = Schedule::where('id', $data['selected_slot'])
-                ->where('is_available', 1)
-                ->lockForUpdate() 
-                ->first();
+            // auto-login for new users after booking
+            if (!$result['is_new_user'] && !Auth::check()) {
 
-            if (!$schedule) {
-                throw new \Exception('Slot taken');
+                session(['lock_email' => $user->email]); 
+ 
+                return redirect()->route('lock')
+                ->with('info', 'Please enter your password to confirm booking.');
             }
 
-            $reg = $schedule->registrations()->create([
-                'email' => $data['email'],
-            ]);
+            return back()->with('success', 'Booking successful! Your Zoom link is being generated and will be emailed to you shortly or it in your dashboard.');
 
-            $schedule->update(['is_available' => 0]);
-            
-            return $reg;
-        });
 
-        \App\Jobs\ProcessBookingJob::dispatch($registration->id);
-
-        return back()->with('success', 'Booking received! Your Zoom link is being generated and will be emailed to you shortly.');
-
-    } catch (\Exception $e) {
-        return back()->with('error', 'This schedule is no longer available.');
+        }catch(\Exception $e){
+            return back()->with('error', $e->getMessage());
+        }
     }
-}
 }
