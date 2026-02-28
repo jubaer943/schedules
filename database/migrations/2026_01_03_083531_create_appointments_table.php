@@ -23,6 +23,10 @@ return new class extends Migration
             $table->string('meet_link')->nullable();
             $table->text('start_url')->nullable();
             $table->text('join_url')->nullable();
+            
+            $table->boolean('is_paid')->default(false);
+            $table->string('score')->nullable();    
+            $table->enum('status', ['scheduled', 'completed', 'cancelled'])->default('scheduled');
 
             $table->timestamps();
         });

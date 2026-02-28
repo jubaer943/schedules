@@ -12,6 +12,9 @@ class Appointment extends Model
         'schedule_id',
         'start_url',
         'join_url',
+        'is_paid',
+        'score',
+        'status',
     ];
 
     /**

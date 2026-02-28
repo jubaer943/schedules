@@ -5,6 +5,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Student\DashboardController;
 use App\Http\Controllers\Student\ProfileController;
+use Illuminate\Support\Facades\Mail;
 
 // --- Public Routes ---
 Route::get('/', function () { return view('frontend.home'); })->name('home');
@@ -23,6 +24,10 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('/login', 'login');
     Route::get('/lock', 'showLock')->name('lock');
     Route::post('/unlock', 'unlock')->name('unlock');
+    Route::get('/forgot-password', 'showForgotPassword')->name('password.request');
+    Route::post('/forgot-password', 'sendResetLinkEmail')->name('password.email');
+    Route::get('/reset-password/{token}', 'showResetForm')->name('password.reset');
+    Route::post('/reset-password', 'resetPassword')->name('password.update');
 });
 
 // --- Student Area (Protected by Middleware) ---
@@ -42,6 +47,19 @@ Route::middleware(['student.auth'])->prefix('student')->group(function () {
     // Logout 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+});
+
+Route::get('/test-email', function () {
+    try {
+        Mail::raw('Hi, this is a test email from Laravel!', function ($message) {
+            $message->to('jubaerhosenhridoy2@example.com') // Put your real email here
+                    ->subject('Server Test Email');
+        });
+        return "Email sent successfully! Check your inbox/Mailtrap.";
+    } catch (\Exception $e) {
+        // This will catch the EXACT error (wrong password, wrong port, etc.)
+        return "Email failed! Error: " . $e->getMessage();
+    }
 });
 
 

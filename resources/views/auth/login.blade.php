@@ -43,7 +43,8 @@
                     <label class="flex items-center text-gray-500 cursor-pointer">
                         <input type="checkbox" name="remember" class="mr-2 rounded border-gray-300"> Remember me
                     </label>
-                    <a href="{{ route('lock') }}" class="text-blue-600 font-bold hover:underline">Forgot Password?</a>
+                    <a href="{{ route('password.request') }}" class="text-blue-600 font-bold hover:underline">Forgot
+                        Password?</a>
                 </div>
 
                 <button type="submit"

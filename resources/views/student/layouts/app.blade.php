@@ -80,15 +80,19 @@
             @endif
 
             <header class="flex justify-between items-center mb-10">
-                <h1 class="text-xl md:text-2xl font-black text-slate-800">Student Dashboard</h1>
+                <h1 class="text-xl md:text-2xl font-black text-slate-800">{!! request()->routeIs('dashboard')
+                    ? 'Dashboard'
+                    : (request()->routeIs('my.bookings')
+                        ? 'My Bookings'
+                        : 'Profile') !!}</h1>
                 <div class="flex items-center gap-3">
                     <div class="text-right hidden sm:block">
-                        <p class="text-sm font-bold text-slate-800 leading-none">Hridoy</p>
+                        <p class="text-sm font-bold text-slate-800 leading-none">{{ Auth::user()->name }}</p>
                         <p class="text-[9px] font-bold text-gray-500 italic uppercase">Band 8.0 Target</p>
                     </div>
                     <div
                         class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-800 font-bold border-2 border-blue-200">
-                        JD</div>
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
                 </div>
             </header>
 

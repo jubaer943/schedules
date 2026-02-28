@@ -18,11 +18,23 @@
         <h2 class="text-3xl font-black text-slate-900">Forgot Password?</h2>
         <p class="text-gray-500 mt-4 text-sm leading-relaxed">No worries! Enter your email and we'll send you a magic
             link to reset your password.</p>
+        {{-- Messages Section --}}
+        @if (session('status'))
+            <div class="mb-4 p-4 rounded-2xl bg-green-100 text-green-700 font-bold text-center text-sm">
+                {{ session('status') }}
+            </div>
+        @endif
 
-        <form class="mt-10 space-y-4">
+        @if ($errors->any())
+            <div class="mb-4 p-4 rounded-2xl bg-red-100 text-red-700 font-bold text-center text-sm">
+                {{ $errors->first() }}
+            </div>
+        @endif
+        <form class="mt-10 space-y-4" action="{{ route('password.email') }}" method="POST">
+            @csrf
             <input type="email"
                 class="w-full px-6 py-4 rounded-2xl bg-gray-100 border-none focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold"
-                placeholder="Your registered email">
+                placeholder="Your registered email" name="email" required>
             <button
                 class="w-full bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-xl hover:bg-black transition">Send
                 Reset Link</button>

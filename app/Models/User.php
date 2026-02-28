@@ -48,5 +48,27 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        // This tells the User: "When someone asks to reset a password, 
+        // use my custom Queueable notification instead of the default one."
+        
+        $this->notify(new \App\Notifications\ResetPassword($token));
+    }
+
+
+    /**
+     * Get the appointments for the user.
+     */
+    public function appointments() {
+        
+        return $this->hasMany(Appointment::class);
+    }
     
 }

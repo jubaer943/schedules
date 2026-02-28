@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
+use App\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -48,7 +52,7 @@ class LoginController extends Controller
         $email = session('lock_email');
 
         if(!$email) {
-            return view('auth.login');
+            return redirect()->route('login');
         }
 
         // find the user by email
@@ -90,6 +94,80 @@ class LoginController extends Controller
 
         return back()->withErrors(['password' => 'Incorrect password. Please try again.']);
     }
+
+
+    /**
+     * Show the forgot password form.
+     */
+
+    public function showForgotPassword() 
+    {
+        return view('auth.forgot');
+    }
+
+    /**
+     * Handle the forgot password request.
+     */
+    public function sendResetLinkEmail(Request $request) 
+    {
+        $request->validate(['email' => 'required|email|exists:users,email']);
+
+        $status = Password::broker()->sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('status', __($status))
+            : back()->withErrors(['email' => __($status)]);
+        
+    }
+    
+    /**
+     * Show the reset password form.
+     */
+    public function showResetForm(Request $request, $token)
+    {
+        $email = $request->query('email');
+        return view('auth.reset', compact('token', 'email'));
+    }
+
+    /**
+     * Handle the reset password request.
+     */
+    public function resetPassword(Request $request) 
+    {    
+        $request->validate([
+                'token'    => 'required',
+                'email'    => 'required|email',
+                'password' => 'required|min:8|confirmed', 
+            ]);
+        
+        $status = Password::broker()->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+
+            function ($user, $password) {
+                $this->resetUserPassword($user, $password);
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ? redirect()->route('login')->with('success', 'Password reset successful! You can now log in with your new password.')
+            : back()->withErrors(['email' => [__($status)]]);
+    }
+
+    /**
+     * Reset the user's password.
+     */
+    protected function resetUserPassword($user, $password) 
+    {
+       $user->forceFill([
+            'password' => Hash::make($password),
+            'password_set' => 1,
+        ])->setRememberToken(Str::random(60));
+
+        $user->save();
+    }
+
 
     /**
      * Handle the logout request.
